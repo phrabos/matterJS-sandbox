@@ -1,11 +1,18 @@
-import React, { useEffect, useRef } from "react";
+import React, { useRef } from "react";
 import Matter from "matter-js";
+import * as Tone from 'tone';
 
 const Scene = () => {
   // const [scene, setScene] = useState();
   const sceneRef = useRef(null);
 
-  useEffect(() => {
+
+
+
+  const handleClick = async () => {
+    console.log('clicked');
+    // const synth = new Tone.Synth().toDestination();
+    await Tone.start();
     let Engine = Matter.Engine;
     let Render = Matter.Render;
     let World = Matter.World;
@@ -55,21 +62,32 @@ const Scene = () => {
         World.add(engine.world, Bodies.circle(150, 50, 30, { restitution: 0.7 }));
       });
   
-      Engine.run(engine);
+      Matter.Runner.run(engine);
   
       Render.run(render);
-  
       Matter.Events.on(engine, 'collisionStart', function(event) {
-        let a = event
+        if(event){
+          let a = event.source.pairs.list[0].bodyA.label
+          // let b = event.source.pairs.list[0].bodyB.label
+          const synth = new Tone.Synth().toDestination();
+          if(a)synth.triggerAttackRelease('C4', '4n');
+          // if(b)synth.triggerAttackRelease('F4', '4n');
+          console.log('a', a)
+        } 
+        // let b = event.pairs[1] ? event.pairs[1] : null;
         // let b = event.pairs[1] ? event.pairs[1] : null
       
         // check bodies, do whatever...
-        console.log('a', a)
       });
 
-  }, [])
+  }
 
-  return <div ref={sceneRef} />;
+  return( 
+    <>
+      <button onClick={handleClick}>start synth</button>
+      <div ref={sceneRef} />
+    </>
+  );
 
 }
 
